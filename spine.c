@@ -162,6 +162,23 @@ void printReceitas(BackDataSet * r, int i, Table * l)
     }
 }
 
+void getDoubleValue(double * receiver, FILE * fp)
+{
+    int count = 0;
+    char pos;
+    char *eptr, string[30];
+    pos = fgetc(fp);
+    while(pos != ',')
+    {
+        string[count] = pos;
+        count++;
+        pos = fgetc(fp);
+    }
+    string[count]= '\0';
+    *receiver = strtod(string, &eptr);
+    printf("%s", string);
+}
+
 // implement a bether load when the data structure become dynamic
 void LoadSpineDataCsv(Table * l)
 {
@@ -181,151 +198,20 @@ void LoadSpineDataCsv(Table * l)
             break;
         }
         //carrega o titulo
+        getDoubleValue(&rec->pelvic_incidence, fp);
+        getDoubleValue(&rec->pelvic_tilt, fp);
+        getDoubleValue(&rec->lumbar_lordosis_angle, fp);
+        getDoubleValue(&rec->sacral_slope, fp);
+        getDoubleValue(&rec->pelvic_radius, fp);
+        getDoubleValue(&rec->degree_spondylolisthesis, fp);
+        getDoubleValue(&rec->pelvic_slope, fp);
+        getDoubleValue(&rec->direct_tilt, fp);
+        getDoubleValue(&rec->thoracic_slope, fp);
+        getDoubleValue(&rec->cervical_tilt, fp);
+        getDoubleValue(&rec->sacrum_angle, fp);
+        getDoubleValue(&rec->scoliosis_slope, fp);
         count = 0;
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->pelvic_incidence = strtod(string, &eptr);
         pos = fgetc(fp);
-        count = 0;
-        //carrega o tempo
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->pelvic_tilt = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->lumbar_lordosis_angle = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->sacral_slope = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->pelvic_radius = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->degree_spondylolisthesis = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->pelvic_slope = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->direct_tilt = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->thoracic_slope = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->cervical_tilt = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->sacrum_angle = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
-        while(pos != ',')
-        {
-            
-            string[count] = pos;
-            count++;
-            pos = fgetc(fp);
-        }
-        string[count]= '\0';
-        rec->scoliosis_slope = strtod(string, &eptr);
-        pos = fgetc(fp);
-        count = 0;
-
         while(pos != ',')
         {
             str[count] = pos;
@@ -336,6 +222,7 @@ void LoadSpineDataCsv(Table * l)
         strcpy(rec->classifycation, str);
         insertFrame(l, rec);
         pos = fgetc(fp);
+        printf("\n");
     }
     fclose(fp);
     printf("\n -----------------load concluded-------------------\n");

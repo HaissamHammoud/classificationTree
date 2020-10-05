@@ -7,14 +7,8 @@ int main()
     //Loading
     int n, i;
     Table * l = newData();
-    char opt= 'a';
-    BackDataSet* nova ;
-    BackDataSet* movel ;
+    //BackDataSet* nova ;
+    //BackDataSet* movel ;
     LoadSpineDataCsv(l);
-
-    // create the split data
-    for(i = 0 ; i < 12 ; i++)
-    {
-      
-    }
+    printf("\n\n %i", countData(l));
 }

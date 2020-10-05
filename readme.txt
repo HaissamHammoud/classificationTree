@@ -1,9 +1,13 @@
 Para compular o projeto:
-
+ windows
 gcc -c main.c
 gcc -c spine.c
 gcc -o teste.exe main.c spine.c
 
+linux 
+gcc -c main.c
+gcc -c spine.c
+gcc -o teste.o main.c spine.c
 
 Este projeto visa criar uma arvore binaria de decisão para classificar as anomalias de coluna.
 
