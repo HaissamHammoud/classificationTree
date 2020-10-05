@@ -35,6 +35,24 @@ struct table
     int count;
 };
 
+struct valueClassification
+{
+    double value; // the value must be ordered
+    int classification; // 0 to normal and 1 to abnormal
+
+    struct valueClassification * ant;
+    struct valueClassification * prox;
+};
+
+struct valueClassificationTable
+{
+    ValueClassification * firstDataFrame;
+    ValueClassification * lastDataFrame;
+    char attributeName[30]; // recieves the attribute name 
+    int posAtual;
+    int count;
+};
+
 
 //Cria um table sem vazio
 Table * newData()
@@ -45,6 +63,16 @@ Table * newData()
     newData->firstDataFrame = NULL;
     newData->lastDataFrame = NULL;
     return newData;
+}
+
+ValueClassificationTable * newClassData()
+{
+    ValueClassificationTable * newClassData = (ValueClassificationTable* )malloc(sizeof(ValueClassificationTable));
+    newClassData->count = 0;
+    newClassData->posAtual = 0;
+    newClassData->firstDataFrame = NULL;
+    newClassData->lastDataFrame = NULL;
+    return newClassData;
 }
 
 //seleciona uma backDataSet, para uso interno apenas
@@ -312,3 +340,141 @@ void LoadSpineDataCsv(Table * l)
     fclose(fp);
     printf("\n -----------------load concluded-------------------\n");
 }
+
+double entropy(Table * table)
+{
+    int i ;
+    int tableCount = table->count;
+    if(table->count == 0)
+    {
+        return 0.0;
+    };
+    for(i = 0; i < tableCount; i++ )
+    {
+
+    }
+}
+
+// value table functions
+
+void insertValueClassificationTable(ValueClassificationTable* l, ValueClassification * rec)
+{
+    int quant = 0;
+    //caso seja a primeira backDataSet, inserir no inicio
+    if(l->count == 0 )
+    {
+        l->firstDataFrame = rec;
+        l->lastDataFrame = rec;
+        rec->ant = rec;
+        rec->prox = rec;
+        l->count = (l->count)+ 1;
+        printf("%d",l->count);
+    }
+    else
+    {
+        InsertInOrder(l->firstDataFrame ,rec, &quant, l->count);
+        if(quant == 0)
+        {
+            l->firstDataFrame = rec;
+        }
+        else if(quant == (l->count)-1)
+        {
+            l->lastDataFrame = rec;
+        }
+        l->count = (l->count) + 1;
+    }
+}
+
+void InsertInValueClassificationInOrder(ValueClassification * recl , ValueClassification * reca, int * quant, int max)
+{
+    if(recl->value > reca->value && *(quant)<max)
+    {
+        *quant = *(quant) + 1 ;
+        printf(" %d ",*(quant));
+        InsertInOrder(recl->prox, reca, quant, max);
+    }
+    else
+    {   
+        reca->ant = recl->ant;
+        reca->prox = recl;
+        recl->ant->prox = reca;
+        recl->ant = reca;
+    }
+}
+
+// function responsible for processing the data in order 
+void processData(Table * table)
+{
+    int i, j ;
+    BackDataSet * actual = table->firstDataFrame;
+    ValueClassificationTable * classificationTable[12];
+    // process all the rows
+    classificationTable[0] = newClassData();
+    for(i = 0 ; i < table->count ; i++ )
+    {
+        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
+        //set the name for the property tavble
+        strcpy(classificationTable[0]->attributeName,"pelvic_incidence");
+        rec->value = actual->pelvic_incidence;
+        insertValueClassificationTable(classificationTable[0],rec);
+        actual = actual->prox;
+    }
+
+    classificationTable[1] = newClassData();
+    for(i = 0 ; i < table->count ; i++ )
+    {
+        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
+        //set the name for the property tavble
+        strcpy(classificationTable[1]->attributeName,"pelvic_tilt");
+        rec->value = actual->pelvic_tilt;
+        insertValueClassificationTable(classificationTable[1],rec);
+        actual = actual->prox;
+    }
+
+    classificationTable[2] = newClassData();
+    for(i = 0 ; i < table->count ; i++ )
+    {
+        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
+        //set the name for the property tavble
+        strcpy(classificationTable[2]->attributeName,"lumbar_lordosis_angle");
+        rec->value = actual->lumbar_lordosis_angle;
+        insertValueClassificationTable(classificationTable[2],rec);
+        actual = actual->prox;
+    }
+
+    classificationTable[3] = newClassData();
+    for(i = 0 ; i < table->count ; i++ )
+    {
+        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
+        //set the name for the property tavble
+        strcpy(classificationTable[3]->attributeName,"sacral_slope");
+        rec->value = actual->sacral_slope;
+        insertValueClassificationTable(classificationTable[3],rec);
+        actual = actual->prox;
+    }
+
+    classificationTable[4] = newClassData();
+    for(i = 0 ; i < table->count ; i++ )
+    {
+        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
+        //set the name for the property tavble
+        strcpy(classificationTable[4]->attributeName,"pelvic_radius;");
+        rec->value = actual->pelvic_radius;
+        insertValueClassificationTable(classificationTable[4],rec);
+        actual = actual->prox;
+    }
+    //return the value gain ratio
+
+    //return the gain ratio of values
+
+
+}
+
+    // double pelvic_radius;
+    // double degree_spondylolisthesis;
+    // double pelvic_slope;
+    // double direct_tilt;
+    // double thoracic_slope;
+    // double cervical_tilt;
+    // double sacrum_angle;
+    // double scoliosis_slope;

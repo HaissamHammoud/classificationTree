@@ -3,6 +3,8 @@
 
 typedef struct backDataSet BackDataSet;
 typedef struct table Table;
+typedef struct valueClassification ValueClassification;
+typedef struct valueClassificationTable ValueClassificationTable;
 
 void interface();
 //Cria um table sem vazio

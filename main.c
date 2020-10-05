@@ -5,16 +5,16 @@
 int main()
 {
     //Loading
-    int n;
+    int n, i;
     Table * l = newData();
     char opt= 'a';
     BackDataSet* nova ;
     BackDataSet* movel ;
     LoadSpineDataCsv(l);
-    printf("%d",countData(l));
-    printf("\nBem Vindo!");
-    while(opt != 's')
+
+    // create the split data
+    for(i = 0 ; i < 12 ; i++)
     {
-      scanf("\n%c", &opt);
+      
     }
 }
