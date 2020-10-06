@@ -37,6 +37,7 @@ struct table
     BackDataSet * lastDataFrame;
     int posAtual;
     int count;
+    double gain;
 };
 
 struct classification
@@ -422,6 +423,13 @@ void generateClassificationTables(Table * table, ClassificationTable * classific
             row = row->prox;
         }
 
+        GainRatio(table);
+        for(i = 0 ; 0 < 12 ; i++)
+        {
+            globalEntropy(classification[0]);
+        }
+
+        
 
     }
 }
