@@ -52,6 +52,8 @@ struct classificationTable
 {
     ValueClassification * firstDataFrame;
     ValueClassification * lastDataFrame;
+    double entropy;
+    double threshold;
     char attributeName[30]; // recieves the attribute name 
     int posAtual;
     int count;
@@ -424,14 +426,37 @@ void generateClassificationTables(Table * table, ClassificationTable * classific
     }
 }
 
-double calculateDoubleEntropy(ClassificationTable * classificationTable)
+void GainRatio(ClassificationTable * classificationTable)
 {
-    int i;
+    int i,j, normalCount = 0, abnormalCount = 0;
+    double currentValue, smallestEntropy = 1, betterValue,actualEntropy;
+    ValueClassification * row = classificationTable->firstDataFrame;
+    betterValue = row->value;
     for(i = 0 ; i < classificationTable->count ; i++)
     {
-
+        normalCount = 0;
+        abnormalCount = 0;
+        currentValue = row->value;
+        for(j = 0; j < classificationTable->count; j++)
+        {
+            ValueClassification * row2 = classificationTable->firstDataFrame;
+            if(row2->value > currentValue)
+            {
+                abnormalCount++;
+            }
+            else
+            {
+                normalCount++;
+            }
+        }
+        actualEntropy = Entropy(normalCount,abnormalCount);
+        if(actualEntropy < smallestEntropy) 
+        {
+            smallestEntropy = actualEntropy;
+        }
     }
-    return 0;
+    classificationTable->threshold = betterValue;
+    classificationTable->entropy = smallestEntropy;
 }
 
 double globalEntropy(Table * table)
@@ -452,10 +477,15 @@ double globalEntropy(Table * table)
         } 
         row = row->prox;
     }
-    entropy = -(countAbnormal/countNormal)* log2(countAbnormal/countNormal)-(countNormal/countAbnormal) * log2(countNormal/countAbnormal); 
+    entropy = Entropy(countNormal,countAbnormal);
     return entropy;
 }
 
+double Entropy(int countNormal, int countAbnormal)
+{
+    double entropy = -(countAbnormal/countNormal)* log2(countAbnormal/countNormal)-(countNormal/countAbnormal) * log2(countNormal/countAbnormal); 
+    return entropy;
+};
 //print function only in order to debug
 void printSpineData(Table * table)
 {
