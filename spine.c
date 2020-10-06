@@ -315,58 +315,58 @@ void generateClassificationTables(Table * table)
         row = row->prox;
     }
     GlobalEntropy(table);
-    for(i = 0 ; 0 < 12 ; i++)
+    for(i = 0 ; i < 12 ; i++)
     {
+        printf("%s\n",classification[i]->attributeName);
         GainRatio(classification[i]);
+        printf("entropy --> %lf",classification[i]->entropy);
+        printf("---  threshhold --> %lf\n\n",classification[i]->threshold);
     }
 
 }
 
 void GainRatio(ClassificationTable * classificationTable)
 {
-    printf("\n %s ----", classificationTable->attributeName );
-    printf("gainratatata");
-    int i,j, normalCount = 0, abnormalCount = 0, currentClass, totalCount =0;
-    double currentValue, smallestEntropy = 1.0, betterValue,actualEntropy = 0.0;
+    int i,j, normalCount = 0, abnormalCount = 0, currentClass;
+    double currentValue, smallestEntropy = 1.0, betterValue,actualEntropy = 0.0, totalPositive;
     ValueClassification * row = classificationTable->firstDataFrame;
     ValueClassification * row2 = classificationTable->firstDataFrame;
     currentClass = row->classification;
     betterValue = row->value;
     for(i = 0 ; i < classificationTable->count ; i++)
     {
-        
+        totalPositive = 0;
         currentValue = row->value;
         normalCount = 0;
         abnormalCount = 0;
-        totalCount = 0;
         row2 = classificationTable->firstDataFrame;
         for(j = 0; j < classificationTable->count; j++)
         {
-            if(row2->value >= currentValue && row2->classification == 1)
+            if(row2->value <= currentValue && row2->classification == 1)
             {
                 abnormalCount++;
-                totalCount++;
+                totalPositive++;
             }
             else
             {
+                if(row2->value <= currentValue )
+                {
+                    totalPositive++;
+                }
                 normalCount++;
-                totalCount++;
             }
             row2 = row2->prox;
         }
         row = row->prox;
-        actualEntropy = Entropy(normalCount, abnormalCount, classificationTable->count );
-        if(actualEntropy > smallestEntropy) 
+        actualEntropy = Entropy(normalCount, abnormalCount ,totalPositive );
+        if(actualEntropy < smallestEntropy) 
         {
             smallestEntropy = actualEntropy;
             betterValue = row->value;
         }
-
     }
-    //printf("\n smallest entropy - %lf",smallestEntropy);
-    //classificationTable->threshold = betterValue;
-    //classificationTable->entropy = smallestEntropy;
-    //printf("\n Inside GainRatio --- %lf" ,classificationTable->entropy);
+    classificationTable->threshold = betterValue;
+    classificationTable->entropy = smallestEntropy;
 }
 
 void GlobalEntropy(Table * table)
@@ -391,7 +391,7 @@ void GlobalEntropy(Table * table)
     
     entropy = Entropy(countNormal,countAbnormal, table->count);
     table->gain = entropy;
-    //printf("\nentropyyy --%lf\n", entropy);
+    printf("\nentropyyy --%lf\n", entropy);
 }
 
 double Entropy(int countNormal, int countAbnormal, int total)
@@ -402,12 +402,6 @@ double Entropy(int countNormal, int countAbnormal, int total)
     entropy2 = fabs((p2)-(p1));
     return entropy2;
 }
-//print function only in order to debug
-void printSpineData(Table * table)
-{
-    BackDataSet *row = table->firstDataFrame;
-    //printRows(row, table->count,0);    
-}
 
 void printRows(BackDataSet * row, int count, int position)
 {
@@ -417,12 +411,3 @@ void printRows(BackDataSet * row, int count, int position)
         printRows(row->prox,count, position);
     }
 }
-
-    // double pelvic_radius;
-    // double degree_spondylolisthesis;
-    // double pelvic_slope;
-    // double direct_tilt;
-    // double thoracic_slope;
-    // double cervical_tilt;
-    // double sacrum_angle;
-    // double scoliosis_slope;
