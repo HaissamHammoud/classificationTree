@@ -4,7 +4,7 @@
 #include<math.h> 
 #include"spine.h"
 
-
+void GlobalEntropy(Table * table);
 //
 // data structure to get the data table
 // data types declaration
@@ -61,7 +61,8 @@ struct classificationTable
 };
 
 
-//Cria um table sem vazio
+// INICIALIZADORES // 
+
 Table * newData()
 {
     Table * newData = (Table* )malloc(sizeof(Table));
@@ -82,35 +83,17 @@ ClassificationTable * newClassData()
     return newClassData;
 }
 
-//seleciona uma backDataSet, para uso interno apenas
-BackDataSet* SelectReceitaByNumber(BackDataSet* r , int n, int count)
+ValueClassification * newValueClassData()
 {
-    if(count == n)
-    {
-        return r;
-    }
-    else
-    {
-        SelectReceitaByNumber(r->prox , n , count+1);
-    }
+    ValueClassification * newValueClassData = (ValueClassification* )malloc(sizeof(ValueClassification));
+    return newValueClassData;
 }
 
-//Pega a posição onde será inserida a backDataSet
-void InsertInOrder(BackDataSet * recl , BackDataSet * reca, int * quant, int max)
-{
-        reca->ant = recl->ant;
-        reca->prox = recl;
-        recl->ant->prox = reca;
-        recl->ant = reca;
 
-}
+// INSERÇÔES //
 
-int countData(Table * table)
-{
-    return table->count;
-}
 
-//insere a backDataSet em um table
+//BACKDATASET //
 void insertFrame(Table* l, BackDataSet* rec)
 {
     int quant = 0;
@@ -122,7 +105,6 @@ void insertFrame(Table* l, BackDataSet* rec)
         rec->ant = rec;
         rec->prox = rec;
         l->count = (l->count)+ 1;
-        printf("%d",l->count);
     }
     else
     {
@@ -139,27 +121,66 @@ void insertFrame(Table* l, BackDataSet* rec)
     }
 }
 
-//indice
-void indice(Table * l)
+void InsertInOrder(BackDataSet * recl , BackDataSet * reca, int * quant, int max)
 {
-    char o;
-    int i = 0;
-    printReceitas(l->firstDataFrame, i, l);
-    printf("\n####Para continuar digite qualquer botao####");
-    scanf("%c", &o);
-    scanf("%c", &o);
+        reca->ant = recl->ant;
+        reca->prox = recl;
+        recl->ant->prox = reca;
+        recl->ant = reca;
 }
 
-//folha as receitas funciona como indice
-void printReceitas(BackDataSet * r, int i, Table * l)
+// VALUE DATA//
+
+void insertValueClassificationTable(ClassificationTable* l, ValueClassification * rec)
 {
-    if(i < l->count)
+    int quant = 0;
+
+    if(l->count == 0 )
     {
-        printf("\n Nome: %s", r->classification);
-        printf(" id: %d", i);
-        printReceitas(r->prox , i+1, l);
+        l->firstDataFrame = rec;
+        l->lastDataFrame = rec;
+        rec->ant = rec;
+        rec->prox = rec;
+        l->count = (l->count)+ 1;
+    }
+    else
+    {
+        InsertInValueClassificationInOrder(l->firstDataFrame ,rec, &quant, l->count);
+        if(quant == 0)
+        {
+            l->firstDataFrame = rec;
+        }
+        else if(quant == (l->count)-1)
+        {
+            l->lastDataFrame = rec;
+        }
+        l->count = (l->count) + 1;
     }
 }
+
+void InsertInValueClassificationInOrder(ValueClassification * recl , ValueClassification * reca, int * quant, int max)
+{
+    if(recl->value > reca->value && *(quant)<max)
+    {
+        *quant = *(quant) + 1 ;
+        InsertInValueClassificationInOrder(recl->prox, reca, quant, max);
+    }
+    else
+    {   
+        reca->ant = recl->ant;
+        reca->prox = recl;
+        recl->ant->prox = reca;
+        recl->ant = reca;
+    }
+}
+
+
+int countData(Table * table)
+{
+    return table->count;
+}
+
+// Read file functions //
 
 void getDoubleValue(double * receiver, FILE * fp)
 {
@@ -175,7 +196,6 @@ void getDoubleValue(double * receiver, FILE * fp)
     }
     string[count]= '\0';
     *receiver = strtod(string, &eptr);
-    printf("%s", string);
 }
 
 // implement a bether load when the data structure become dynamic
@@ -228,142 +248,14 @@ void LoadSpineDataCsv(Table * l)
         }
         insertFrame(l, rec);
         pos = fgetc(fp);
-        printf("\n");
     }
     fclose(fp);
     printf("\n -----------------load concluded-------------------\n");
 }
 
-double entropy(Table * table)
-{
-    int i ;
-    int tableCount = table->count;
-    if(table->count == 0)
-    {
-        return 0.0;
-    };
-    for(i = 0; i < tableCount; i++ )
-    {
+// processing data functions //
 
-    }
-}
-
-// value table functions
-
-void insertValueClassificationTable(ClassificationTable* l, ValueClassification * rec)
-{
-    int quant = 0;
-    //caso seja a primeira backDataSet, inserir no inicio
-    if(l->count == 0 )
-    {
-        l->firstDataFrame = rec;
-        l->lastDataFrame = rec;
-        rec->ant = rec;
-        rec->prox = rec;
-        l->count = (l->count)+ 1;
-        printf("%d",l->count);
-    }
-    else
-    {
-        InsertInOrder(l->firstDataFrame ,rec, &quant, l->count);
-        if(quant == 0)
-        {
-            l->firstDataFrame = rec;
-        }
-        else if(quant == (l->count)-1)
-        {
-            l->lastDataFrame = rec;
-        }
-        l->count = (l->count) + 1;
-    }
-}
-
-void InsertInValueClassificationInOrder(ValueClassification * recl , ValueClassification * reca, int * quant, int max)
-{
-    if(recl->value > reca->value && *(quant)<max)
-    {
-        *quant = *(quant) + 1 ;
-        printf(" %d ",*(quant));
-        InsertInOrder(recl->prox, reca, quant, max);
-    }
-    else
-    {   
-        reca->ant = recl->ant;
-        reca->prox = recl;
-        recl->ant->prox = reca;
-        recl->ant = reca;
-    }
-}
-
-// function responsible for processing the data in order 
-void processData(Table * table)
-{
-    int i, j ;
-    BackDataSet * actual = table->firstDataFrame;
-    ClassificationTable * classificationTable[12];
-    // process all the rows
-    classificationTable[0] = newClassData();
-    for(i = 0 ; i < table->count ; i++ )
-    {
-        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
-        //set the name for the property tavble
-        strcpy(classificationTable[0]->attributeName,"pelvic_incidence");
-        rec->value = actual->pelvic_incidence;
-        insertValueClassificationTable(classificationTable[0],rec);
-        actual = actual->prox;
-    }
-
-    classificationTable[1] = newClassData();
-    for(i = 0 ; i < table->count ; i++ )
-    {
-        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
-        //set the name for the property tavble
-        strcpy(classificationTable[1]->attributeName,"pelvic_tilt");
-        rec->value = actual->pelvic_tilt;
-        insertValueClassificationTable(classificationTable[1],rec);
-        actual = actual->prox;
-    }
-
-    classificationTable[2] = newClassData();
-    for(i = 0 ; i < table->count ; i++ )
-    {
-        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
-        //set the name for the property tavble
-        strcpy(classificationTable[2]->attributeName,"lumbar_lordosis_angle");
-        rec->value = actual->lumbar_lordosis_angle;
-        insertValueClassificationTable(classificationTable[2],rec);
-        actual = actual->prox;
-    }
-
-    classificationTable[3] = newClassData();
-    for(i = 0 ; i < table->count ; i++ )
-    {
-        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
-        //set the name for the property tavble
-        strcpy(classificationTable[3]->attributeName,"sacral_slope");
-        rec->value = actual->sacral_slope;
-        insertValueClassificationTable(classificationTable[3],rec);
-        actual = actual->prox;
-    }
-
-    classificationTable[4] = newClassData();
-    for(i = 0 ; i < table->count ; i++ )
-    {
-        ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
-        //set the name for the property tavble
-        strcpy(classificationTable[4]->attributeName,"pelvic_radius;");
-        rec->value = actual->pelvic_radius;
-        insertValueClassificationTable(classificationTable[4],rec);
-        actual = actual->prox;
-    }
-    //return the value gain ratio
-
-    //return the gain ratio of values
-
-
-}
-
-void generateClassificationTables(Table * table, ClassificationTable * classificationTable)
+void generateClassificationTables(Table * table)
 {
     int i = 0;
     int j = 0;
@@ -385,94 +277,105 @@ void generateClassificationTables(Table * table, ClassificationTable * classific
     strcpy(classification[9]->attributeName,"cervical_tilt");
     strcpy(classification[10]->attributeName,"sacrum_angle");
     strcpy(classification[11]->attributeName,"scoliosis_slope");
-
     BackDataSet * row = table->firstDataFrame;
     for(i = 0 ; i< table->count; i++)
     {
         int class = row->classification;
         for(j = 0 ; j < 12 ; j++)
         {
-            ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
+            ValueClassification* rec = newValueClassData();
             if(j == 0 )
             rec->value = row->pelvic_incidence;
                 else if(j == 1)
-            rec->value = row->pelvic_tilt;
+                    rec->value = row->pelvic_tilt;
                 else if(j == 2)
-            rec->value = row->lumbar_lordosis_angle;
+                    rec->value = row->lumbar_lordosis_angle;
                 else if(j == 3)
-            rec->value = row->sacral_slope;
+                    rec->value = row->sacral_slope;
                 else if(j == 4)
-            rec->value = row->pelvic_radius;
+                    rec->value = row->pelvic_radius;
                 else if(j == 5)
-            rec->value = row->degree_spondylolisthesis;
+                    rec->value = row->degree_spondylolisthesis;
                 else if(j == 6)
-            rec->value = row->pelvic_slope;
+                    rec->value = row->pelvic_slope;
                 else if(j == 7)
-            rec->value = row->direct_tilt;
+                    rec->value = row->direct_tilt;
                 else if(j == 8)
-            rec->value = row->thoracic_slope;
+                    rec->value = row->thoracic_slope;
                 else if(j == 9)
-            rec->value = row->cervical_tilt;
+                    rec->value = row->cervical_tilt;
                 else if(j == 10)
-            rec->value = row->sacrum_angle;
+                    rec->value = row->sacrum_angle;
                 else if(j == 11)
-            rec->value = row->scoliosis_slope;
+                    rec->value = row->scoliosis_slope;
 
-            rec->value = class;
+            rec->classification = class;
             insertValueClassificationTable(classification[j], rec);
-            row = row->prox;
         }
-
-        GainRatio(table);
-        for(i = 0 ; 0 < 12 ; i++)
-        {
-            globalEntropy(classification[0]);
-        }
-
-        
-
+        row = row->prox;
     }
+    GlobalEntropy(table);
+    for(i = 0 ; 0 < 12 ; i++)
+    {
+        GainRatio(classification[i]);
+    }
+
 }
 
 void GainRatio(ClassificationTable * classificationTable)
 {
-    int i,j, normalCount = 0, abnormalCount = 0;
-    double currentValue, smallestEntropy = 1, betterValue,actualEntropy;
+    printf("\n %s ----", classificationTable->attributeName );
+    printf("gainratatata");
+    int i,j, normalCount = 0, abnormalCount = 0, currentClass, totalCount =0;
+    double currentValue, smallestEntropy = 1.0, betterValue,actualEntropy = 0.0;
     ValueClassification * row = classificationTable->firstDataFrame;
+    ValueClassification * row2 = classificationTable->firstDataFrame;
+    currentClass = row->classification;
     betterValue = row->value;
     for(i = 0 ; i < classificationTable->count ; i++)
     {
+        
+        currentValue = row->value;
         normalCount = 0;
         abnormalCount = 0;
-        currentValue = row->value;
+        totalCount = 0;
+        row2 = classificationTable->firstDataFrame;
         for(j = 0; j < classificationTable->count; j++)
         {
-            ValueClassification * row2 = classificationTable->firstDataFrame;
-            if(row2->value > currentValue)
+            if(row2->value >= currentValue && row2->classification == 1)
             {
                 abnormalCount++;
+                totalCount++;
             }
             else
             {
                 normalCount++;
+                totalCount++;
             }
+            row2 = row2->prox;
         }
-        actualEntropy = Entropy(normalCount,abnormalCount);
-        if(actualEntropy < smallestEntropy) 
+        row = row->prox;
+        actualEntropy = Entropy(normalCount, abnormalCount, classificationTable->count );
+        if(actualEntropy > smallestEntropy) 
         {
             smallestEntropy = actualEntropy;
+            betterValue = row->value;
         }
+
     }
-    classificationTable->threshold = betterValue;
-    classificationTable->entropy = smallestEntropy;
+    //printf("\n smallest entropy - %lf",smallestEntropy);
+    //classificationTable->threshold = betterValue;
+    //classificationTable->entropy = smallestEntropy;
+    //printf("\n Inside GainRatio --- %lf" ,classificationTable->entropy);
 }
 
-double globalEntropy(Table * table)
+void GlobalEntropy(Table * table)
 {
     int countNormal = 0 , countAbnormal = 0;
-    int i;
+    int i;\
     double entropy;
     BackDataSet * row = table->firstDataFrame;
+
     for(i = 0 ; i < table->count; i++)
     {
         if(row->classification == 0)
@@ -485,21 +388,25 @@ double globalEntropy(Table * table)
         } 
         row = row->prox;
     }
-    entropy = Entropy(countNormal,countAbnormal);
-    return entropy;
+    
+    entropy = Entropy(countNormal,countAbnormal, table->count);
+    table->gain = entropy;
+    //printf("\nentropyyy --%lf\n", entropy);
 }
 
-double Entropy(int countNormal, int countAbnormal)
+double Entropy(int countNormal, int countAbnormal, int total)
 {
-    double entropy = -(countAbnormal/countNormal)* log2(countAbnormal/countNormal)-(countNormal/countAbnormal) * log2(countNormal/countAbnormal); 
-    return entropy;
-};
+    double entropy2 =0.0,p1=0.0, p2=0.0;
+    p1 = -((double)countAbnormal/(double)total)*log2((double)countAbnormal/(double)total); 
+    p2 = ((double)countNormal/(double)total) * log2((double)countNormal/(double)total);
+    entropy2 = fabs((p2)-(p1));
+    return entropy2;
+}
 //print function only in order to debug
 void printSpineData(Table * table)
 {
-    printf("\nprinting\n");
     BackDataSet *row = table->firstDataFrame;
-    printRows(row, table->count,0);    
+    //printRows(row, table->count,0);    
 }
 
 void printRows(BackDataSet * row, int count, int position)
@@ -507,8 +414,6 @@ void printRows(BackDataSet * row, int count, int position)
     position++;
     if(count > position)
     {
-        printf("\n%lf -- ", row->cervical_tilt);
-        printf("  %i\n", row->classification);
         printRows(row->prox,count, position);
     }
 }

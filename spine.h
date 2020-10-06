@@ -13,11 +13,21 @@ Table * newData();
 //insere a backDataSet em um table
 void insertFrame(Table* l, BackDataSet* rec);
 //indice
-BackDataSet* SelectReceitaByNumber(BackDataSet* r , int n, int count);
+BackDataSet* SelectDataSetById(BackDataSet* r , int n, int count);
 //marca a backDataSet como feita
 void LoadSpineDataCsv(Table * l);
 //Edita uma backDataSet especifica
 int countData(Table * table);
 // process data
 void printSpineData(Table * table);
+void generateClassificationTables(Table * table);
+double Entropy(int countNormal, int countAbnormal, int total);
+void GlobalEntropy(Table * table);
+void GainRatio(ClassificationTable * classificationTable);
+void getDoubleValue(double * receiver, FILE * fp);
+void InsertInValueClassificationInOrder(ValueClassification * recl , ValueClassification * reca, int * quant, int max);
+void insertFrame(Table* l, BackDataSet* rec);
+void InsertInOrder(BackDataSet * recl , BackDataSet * reca, int * quant, int max);
+ValueClassification * newValueClassData();
+
 #endif

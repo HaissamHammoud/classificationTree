@@ -12,4 +12,5 @@ int main()
     LoadSpineDataCsv(l);
     printf("\n\n %i", countData(l));
     printSpineData(l);
+    generateClassificationTables(l);
 }

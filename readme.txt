@@ -5,9 +5,9 @@ gcc -c spine.c
 gcc -o teste.exe main.c spine.c
 
 linux 
-gcc -c main.c
-gcc -c spine.c
-gcc -o teste.o main.c spine.c
+gcc -c main.c  -lm
+gcc -c spine.c -lm
+gcc -o teste.o main.c spine.c  -lm
 
 Este projeto visa criar uma arvore binaria de decisão para classificar as anomalias de coluna.
 Foi utilizado como inspiração o algoritmo c45 e id3.
