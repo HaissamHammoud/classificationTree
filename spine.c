@@ -51,6 +51,7 @@ struct classification
 
 struct classificationTable
 {
+    // a order by value table to compare value with classification
     ValueClassification * firstDataFrame;
     ValueClassification * lastDataFrame;
     double entropy;
@@ -60,8 +61,27 @@ struct classificationTable
     int count;
 };
 
+// Tree structure
+
+struct NO
+{
+    double threshold; //recebe o valor para tomada de decisão x > value = esq <= direita
+    double value; // recebe o gain ratio para a decisão de onde colocar o no
+    char valueName[30];
+    struct NO *esq;
+    struct NO *dir;
+};
+
 
 // INICIALIZADORES // 
+
+ArvBin* createTree()
+{
+    ArvBin* raiz = (ArvBin*) malloc(sizeof(ArvBin));
+    if(raiz != NULL)
+        *raiz = NULL;
+    return raiz;
+};
 
 Table * newData()
 {
@@ -91,6 +111,46 @@ ValueClassification * newValueClassData()
 
 
 // INSERÇÔES //
+
+int insertTree(ArvBin* raiz, double gain, double threshhold, char name[30])
+{
+    if(raiz == NULL)
+        return 0;
+    struct NO* novo;
+    novo = (struct NO*) malloc(sizeof(struct NO));
+    if(novo == NULL)
+        return 0;
+    novo->value = gain;
+    novo->threshold = threshhold;
+    strcpy(novo->valueName,name );
+    novo->dir = NULL;
+    novo->esq = NULL;
+
+    if(*raiz == NULL)
+        *raiz = novo;
+    else{
+        struct NO* atual = *raiz;
+        struct NO* ant = NULL;
+        while(atual != NULL){
+            ant = atual;
+            if(gain == atual->value){
+                free(novo);
+                return 0;//elemento j� existe
+            }
+
+            if(gain > atual->value)
+                atual = atual->dir;
+            else
+                atual = atual->esq;
+        }
+        if(gain > ant->value)
+            ant->dir = novo;
+        else
+            ant->esq = novo;
+    }
+    return 1;
+}
+
 
 
 //BACKDATASET //
@@ -257,6 +317,7 @@ void LoadSpineDataCsv(Table * l)
 
 void generateClassificationTables(Table * table)
 {
+    ArvBin tree = createTree();
     int i = 0;
     int j = 0;
     ClassificationTable * classification[12];
@@ -321,8 +382,9 @@ void generateClassificationTables(Table * table)
         GainRatio(classification[i]);
         printf("entropy --> %lf",classification[i]->entropy);
         printf("---  threshhold --> %lf\n\n",classification[i]->threshold);
+        insertTree(tree,classification[i]->entropy,classification[i]->threshold,classification[i]->attributeName);
     }
-
+    printTree(tree);
 }
 
 void GainRatio(ClassificationTable * classificationTable)
@@ -409,5 +471,16 @@ void printRows(BackDataSet * row, int count, int position)
     if(count > position)
     {
         printRows(row->prox,count, position);
+    }
+}
+
+void printTree(ArvBin *raiz){
+    if(raiz == NULL)
+        return;
+    if(*raiz != NULL){
+        printf(" (%lf %lf <> %s )",(*raiz)->threshold,(*raiz)->value, (*raiz)->valueName);
+        printf("\n");
+        printTree(&((*raiz)->esq));
+        printTree(&((*raiz)->dir));
     }
 }

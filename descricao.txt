@@ -1,0 +1,3 @@
+O problema encontrado é criar um algoritmo de treinamento que interprete 
+e classifique as condições posturais de um paciente em normais e anormais
+(normal, abnormal)

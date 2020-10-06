@@ -5,6 +5,7 @@ typedef struct backDataSet BackDataSet;
 typedef struct table Table;
 typedef struct classification ValueClassification;
 typedef struct classificationTable ClassificationTable;
+typedef struct NO* ArvBin;
 
 void interface();
 //Cria um table sem vazio
@@ -29,5 +30,7 @@ void InsertInValueClassificationInOrder(ValueClassification * recl , ValueClassi
 void insertFrame(Table* l, BackDataSet* rec);
 void InsertInOrder(BackDataSet * recl , BackDataSet * reca, int * quant, int max);
 ValueClassification * newValueClassData();
-
+void printTree(ArvBin *raiz);
+int insertTree(ArvBin* raiz, double gain, double threshhold, char name[30]);
+ArvBin* createTree();
 #endif
