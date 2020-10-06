@@ -13,3 +13,17 @@ Este projeto visa criar uma arvore binaria de decisão para classificar as anoma
 
 references : https://sefiks.com/2017/11/20/a-step-by-step-id3-decision-tree-example/
             http://www2.cs.uregina.ca/~dbd/cs831/notes/ml/dtrees/dt_prob1.html
+
+            ordem dos dados
+    double pelvic_incidence;
+    double pelvic_tilt;
+    double lumbar_lordosis_angle;
+    double sacral_slope;
+    double pelvic_radius;
+    double degree_spondylolisthesis;
+    double pelvic_slope;
+    double direct_tilt;
+    double thoracic_slope;
+    double cervical_tilt;
+    double sacrum_angle;
+    double scoliosis_slope;

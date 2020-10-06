@@ -3,8 +3,8 @@
 
 typedef struct backDataSet BackDataSet;
 typedef struct table Table;
-typedef struct valueClassification ValueClassification;
-typedef struct valueClassificationTable ValueClassificationTable;
+typedef struct classification ValueClassification;
+typedef struct classificationTable ClassificationTable;
 
 void interface();
 //Cria um table sem vazio
@@ -18,4 +18,6 @@ BackDataSet* SelectReceitaByNumber(BackDataSet* r , int n, int count);
 void LoadSpineDataCsv(Table * l);
 //Edita uma backDataSet especifica
 int countData(Table * table);
+// process data
+void printSpineData(Table * table);
 #endif

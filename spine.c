@@ -4,7 +4,11 @@
 #include<math.h> 
 #include"spine.h"
 
+
+//
 // data structure to get the data table
+// data types declaration
+//
 struct backDataSet
 {
     double pelvic_incidence;
@@ -19,7 +23,7 @@ struct backDataSet
     double cervical_tilt;
     double sacrum_angle;
     double scoliosis_slope;
-    char classifycation[10];
+    int classification; // 0 to normal 1 to abnormal
 
     //Nos
     struct backDataSet * ant;
@@ -35,16 +39,16 @@ struct table
     int count;
 };
 
-struct valueClassification
+struct classification
 {
     double value; // the value must be ordered
     int classification; // 0 to normal and 1 to abnormal
 
-    struct valueClassification * ant;
-    struct valueClassification * prox;
+    struct classification * ant;
+    struct classification * prox;
 };
 
-struct valueClassificationTable
+struct classificationTable
 {
     ValueClassification * firstDataFrame;
     ValueClassification * lastDataFrame;
@@ -65,9 +69,9 @@ Table * newData()
     return newData;
 }
 
-ValueClassificationTable * newClassData()
+ClassificationTable * newClassData()
 {
-    ValueClassificationTable * newClassData = (ValueClassificationTable* )malloc(sizeof(ValueClassificationTable));
+    ClassificationTable * newClassData = (ClassificationTable* )malloc(sizeof(ClassificationTable));
     newClassData->count = 0;
     newClassData->posAtual = 0;
     newClassData->firstDataFrame = NULL;
@@ -91,19 +95,11 @@ BackDataSet* SelectReceitaByNumber(BackDataSet* r , int n, int count)
 //Pega a posição onde será inserida a backDataSet
 void InsertInOrder(BackDataSet * recl , BackDataSet * reca, int * quant, int max)
 {
-    // if(strcmp(recl->titulo, reca->titulo)<0 && *(quant)<max)
-    // {
-    //     *quant = *(quant) + 1 ;
-    //     printf(" %d ",*(quant));
-    //     InsertInOrder(recl->prox, reca, quant, max);
-    // }
-    // else
-    // {   
         reca->ant = recl->ant;
         reca->prox = recl;
         recl->ant->prox = reca;
         recl->ant = reca;
-    //}
+
 }
 
 int countData(Table * table)
@@ -156,7 +152,7 @@ void printReceitas(BackDataSet * r, int i, Table * l)
 {
     if(i < l->count)
     {
-        printf("\n Nome: %s", r->classifycation);
+        printf("\n Nome: %s", r->classification);
         printf(" id: %d", i);
         printReceitas(r->prox , i+1, l);
     }
@@ -219,7 +215,14 @@ void LoadSpineDataCsv(Table * l)
             pos = fgetc(fp);
         }
         str[count]= '\0';
-        strcpy(rec->classifycation, str);
+        if(strcmp(str,"normal") == 0)
+        {
+            rec->classification = 0;
+        }
+        else
+        {
+            rec->classification = 1;
+        }
         insertFrame(l, rec);
         pos = fgetc(fp);
         printf("\n");
@@ -244,7 +247,7 @@ double entropy(Table * table)
 
 // value table functions
 
-void insertValueClassificationTable(ValueClassificationTable* l, ValueClassification * rec)
+void insertValueClassificationTable(ClassificationTable* l, ValueClassification * rec)
 {
     int quant = 0;
     //caso seja a primeira backDataSet, inserir no inicio
@@ -294,7 +297,7 @@ void processData(Table * table)
 {
     int i, j ;
     BackDataSet * actual = table->firstDataFrame;
-    ValueClassificationTable * classificationTable[12];
+    ClassificationTable * classificationTable[12];
     // process all the rows
     classificationTable[0] = newClassData();
     for(i = 0 ; i < table->count ; i++ )
@@ -355,6 +358,121 @@ void processData(Table * table)
     //return the gain ratio of values
 
 
+}
+
+void generateClassificationTables(Table * table, ClassificationTable * classificationTable)
+{
+    int i = 0;
+    int j = 0;
+    ClassificationTable * classification[12];
+    for(i = 0 ; i < 12 ; i++)
+    {
+        classification[i] = newClassData();
+    }
+    // give a name to table data
+    strcpy(classification[0]->attributeName,"pelvic_incidence");
+    strcpy(classification[1]->attributeName,"pelvic_tilt");
+    strcpy(classification[2]->attributeName,"lumbar_lordosis_angle");
+    strcpy(classification[3]->attributeName,"sacral_slope");
+    strcpy(classification[4]->attributeName,"pelvic_radius");
+    strcpy(classification[5]->attributeName,"degree_spondylolisthesis");
+    strcpy(classification[6]->attributeName,"pelvic_slope");
+    strcpy(classification[7]->attributeName,"direct_tilt");
+    strcpy(classification[8]->attributeName,"thoracic_slope");
+    strcpy(classification[9]->attributeName,"cervical_tilt");
+    strcpy(classification[10]->attributeName,"sacrum_angle");
+    strcpy(classification[11]->attributeName,"scoliosis_slope");
+
+    BackDataSet * row = table->firstDataFrame;
+    for(i = 0 ; i< table->count; i++)
+    {
+        int class = row->classification;
+        for(j = 0 ; j < 12 ; j++)
+        {
+            ValueClassification* rec = (ValueClassification*)malloc(sizeof(ValueClassification));
+            if(j == 0 )
+            rec->value = row->pelvic_incidence;
+                else if(j == 1)
+            rec->value = row->pelvic_tilt;
+                else if(j == 2)
+            rec->value = row->lumbar_lordosis_angle;
+                else if(j == 3)
+            rec->value = row->sacral_slope;
+                else if(j == 4)
+            rec->value = row->pelvic_radius;
+                else if(j == 5)
+            rec->value = row->degree_spondylolisthesis;
+                else if(j == 6)
+            rec->value = row->pelvic_slope;
+                else if(j == 7)
+            rec->value = row->direct_tilt;
+                else if(j == 8)
+            rec->value = row->thoracic_slope;
+                else if(j == 9)
+            rec->value = row->cervical_tilt;
+                else if(j == 10)
+            rec->value = row->sacrum_angle;
+                else if(j == 11)
+            rec->value = row->scoliosis_slope;
+
+            rec->value = class;
+            insertValueClassificationTable(classification[j], rec);
+            row = row->prox;
+        }
+
+
+    }
+}
+
+double calculateDoubleEntropy(ClassificationTable * classificationTable)
+{
+    int i;
+    for(i = 0 ; i < classificationTable->count ; i++)
+    {
+
+    }
+    return 0;
+}
+
+double globalEntropy(Table * table)
+{
+    int countNormal = 0 , countAbnormal = 0;
+    int i;
+    double entropy;
+    BackDataSet * row = table->firstDataFrame;
+    for(i = 0 ; i < table->count; i++)
+    {
+        if(row->classification == 0)
+        {
+            countNormal++;
+        }
+        else
+        {
+            countAbnormal++;
+        } 
+        row = row->prox;
+    }
+    entropy = -(countAbnormal/countNormal)* log2(countAbnormal/countNormal)-(countNormal/countAbnormal) * log2(countNormal/countAbnormal); 
+    return entropy;
+}
+
+//print function only in order to debug
+void printSpineData(Table * table)
+{
+    printf("\nprinting\n");
+    BackDataSet *row = table->firstDataFrame;
+    printRows(row, table->count,0);    
+}
+
+void printRows(BackDataSet * row, int count, int position)
+{
+    position++;
+    if(count > position)
+    {
+        printf("\n%lf -- ", row->cervical_tilt);
+        printf("  %i\n", row->classification);
+        printRows(row->prox,count, position);
+    }
 }
 
     // double pelvic_radius;

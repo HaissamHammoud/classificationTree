@@ -11,4 +11,5 @@ int main()
     //BackDataSet* movel ;
     LoadSpineDataCsv(l);
     printf("\n\n %i", countData(l));
+    printSpineData(l);
 }
